@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -88,11 +89,15 @@ func main() {
 		handleCommit(strings.Join(commitMessage, " "))
 		return
 	} else {
-		fmt.Println("Spelling errors in commit message!!")
+		color.Red("Spelling errors in the commit message!!")
 		fmt.Println("Mistakes: ")
-		for _, mistake := range responseValue.Corrections {
-			fmt.Printf("	wrong word: %v\n", mistake.Text)
-			fmt.Printf("		Suggestions: %v\n", mistake.Candidates)
+		for index, mistake := range responseValue.Corrections {
+			fmt.Printf("	%v.wrong word: ", index+1)
+			color.Red("%v\n", mistake.Text)
+
+			fmt.Print("		Suggestions: ")
+			color.Green("%v\n", mistake.Candidates)
+
 		}
 	}
 }
