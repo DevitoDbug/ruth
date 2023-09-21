@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -34,6 +35,24 @@ func validateWord(url string, sentence string) (*http.Response, error) {
 	return body, nil
 }
 
+func handleCommit(commitMessage string) {
+	// Get the current working directory
+	currentDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error getting current working directory:", err)
+		os.Exit(1)
+	}
+	commitCmd := exec.Command("git", "commit", "-m", commitMessage)
+	commitCmd.Dir = currentDir
+	output, err := commitCmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	
+	fmt.Println("Commit message: ", string(output))
+}
+
 func main() {
 	var responseValue ResponseValue
 	var commitMessage []string
@@ -55,5 +74,17 @@ func main() {
 	if err := json.Unmarshal([]byte(responseBody), &responseValue); err != nil {
 		panic(err)
 	}
-	fmt.Println(responseValue)
+	//fmt.Println(len(responseValue.Corrections))
+
+	if len(responseValue.Corrections) <= 0 {
+		handleCommit(string(responseBody))
+		return
+	}
+
+	fmt.Println("Spelling errors in commit message!!")
+	fmt.Println("Mistakes: ")
+	for _, mistake := range responseValue.Corrections {
+		fmt.Printf("	wrong word: %v\n", mistake.Text)
+		fmt.Printf("		Suggestions: %v\n", mistake.Candidates)
+	}
 }
