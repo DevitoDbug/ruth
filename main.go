@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -16,6 +17,12 @@ func validateWord(url string, sentence string) (*http.Response, error) {
 	}
 
 	req.Header.Set("apikey", "jfNRme3SHJ3WIGR29FpyhLJC5PT4qem0")
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(req.Body)
 	client := &http.Client{}
 	body, err := client.Do(req)
 	if err != nil {
@@ -24,6 +31,21 @@ func validateWord(url string, sentence string) (*http.Response, error) {
 	return body, nil
 }
 
+//$ go run main.go how are you doink
+//{
+//    "corrections": [
+//        {
+//            "text": "doink",
+//            "best_candidate": "doing",
+//            "candidates": [
+//                "doing",
+//                "dwink",
+//                "drink"
+//            ]
+//        }
+//    ],
+//    "original_text": "how are you doink"
+//}
 func main() {
 	var commitMessage []string
 	url := "https://api.apilayer.com/spell/spellchecker?q="
@@ -43,24 +65,3 @@ func main() {
 
 	fmt.Println(string(responseBody))
 }
-
-//func main() {
-//	word := []string{"name", "is", "thinj"}
-//	url := "https://api.apilayer.com/spell/spellchecker?q="
-//	urlWords := fmt.Sprintf("%v%v", url, strings.Join(word, "%20"))
-//
-//	client := &http.Client{}
-//	req, err := http.NewRequest("GET", urlWords, nil)
-//	req.Header.Set("apikey", "jfNRme3SHJ3WIGR29FpyhLJC5PT4qem0")
-//
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	res, err := client.Do(req)
-//	if res.Body != nil {
-//		defer res.Body.Close()
-//	}
-//	body, err := ioutil.ReadAll(res.Body)
-//
-//	fmt.Println(string(body))
-//}
