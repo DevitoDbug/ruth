@@ -42,15 +42,24 @@ func handleCommit(commitMessage string) {
 		fmt.Println("Error getting current working directory:", err)
 		os.Exit(1)
 	}
+	stageCmd := exec.Command("git", "add", ".")
 	commitCmd := exec.Command("git", "commit", "-m", commitMessage)
+
+	stageCmd.Dir = currentDir
 	commitCmd.Dir = currentDir
-	output, err := commitCmd.CombinedOutput()
+
+	output1, err := stageCmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	output2, err := commitCmd.CombinedOutput()
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 	fmt.Println("Commit made")
-	fmt.Println("Commit message: ", string(output))
+	fmt.Printf("%v\n%v", string(output1), string(output2))
 }
 
 func main() {
@@ -76,14 +85,14 @@ func main() {
 	}
 
 	if len(responseValue.Corrections) <= 0 {
-		handleCommit(string(responseBody))
+		handleCommit(strings.Join(commitMessage, " "))
 		return
-	}
-
-	fmt.Println("Spelling errors in commit message!!")
-	fmt.Println("Mistakes: ")
-	for _, mistake := range responseValue.Corrections {
-		fmt.Printf("	wrong word: %v\n", mistake.Text)
-		fmt.Printf("		Suggestions: %v\n", mistake.Candidates)
+	} else {
+		fmt.Println("Spelling errors in commit message!!")
+		fmt.Println("Mistakes: ")
+		for _, mistake := range responseValue.Corrections {
+			fmt.Printf("	wrong word: %v\n", mistake.Text)
+			fmt.Printf("		Suggestions: %v\n", mistake.Candidates)
+		}
 	}
 }
