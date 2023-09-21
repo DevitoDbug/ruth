@@ -49,7 +49,7 @@ func handleCommit(commitMessage string) {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
-	
+	fmt.Println("Commit made")
 	fmt.Println("Commit message: ", string(output))
 }
 
@@ -74,7 +74,6 @@ func main() {
 	if err := json.Unmarshal([]byte(responseBody), &responseValue); err != nil {
 		panic(err)
 	}
-	//fmt.Println(len(responseValue.Corrections))
 
 	if len(responseValue.Corrections) <= 0 {
 		handleCommit(string(responseBody))
