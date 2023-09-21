@@ -1,13 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 )
+
+type ResponseValue struct {
+	Corrections []struct {
+		Text          string   `json:"text"`
+		BestCandidate string   `json:"best_candidate"`
+		Candidates    []string `json:"candidates"`
+	} `json:"corrections"`
+	OriginalText string `json:"original_text"`
+}
 
 func validateWord(url string, sentence string) (*http.Response, error) {
 	newURL := fmt.Sprintf("%v%v", url, sentence)
@@ -17,12 +26,6 @@ func validateWord(url string, sentence string) (*http.Response, error) {
 	}
 
 	req.Header.Set("apikey", "jfNRme3SHJ3WIGR29FpyhLJC5PT4qem0")
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			panic(err)
-		}
-	}(req.Body)
 	client := &http.Client{}
 	body, err := client.Do(req)
 	if err != nil {
@@ -31,22 +34,8 @@ func validateWord(url string, sentence string) (*http.Response, error) {
 	return body, nil
 }
 
-//$ go run main.go how are you doink
-//{
-//    "corrections": [
-//        {
-//            "text": "doink",
-//            "best_candidate": "doing",
-//            "candidates": [
-//                "doing",
-//                "dwink",
-//                "drink"
-//            ]
-//        }
-//    ],
-//    "original_text": "how are you doink"
-//}
 func main() {
+	var responseValue ResponseValue
 	var commitMessage []string
 	url := "https://api.apilayer.com/spell/spellchecker?q="
 	if len(os.Args) >= 2 {
@@ -63,5 +52,8 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(string(responseBody))
+	if err := json.Unmarshal([]byte(responseBody), &responseValue); err != nil {
+		panic(err)
+	}
+	fmt.Println(responseValue)
 }
