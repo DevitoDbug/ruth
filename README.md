@@ -1,5 +1,5 @@
 # Spellchecker Git Commit Hook
-![Alt Text]()
+![](https://github.com/DevitoDbug/ruth/blob/master/resources/screenshot.jpg?raw=true)
 
 This is a simple command-line tool that checks the spelling in a Git commit message using the apilayer Spellchecker API and automatically commits the changes if there are no spelling errors in the commit message. If there are spelling errors, it displays the mistakes and suggestions to the user.
 
