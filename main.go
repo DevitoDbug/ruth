@@ -71,7 +71,8 @@ func main() {
 		commitMessage = append(commitMessage, os.Args[1:]...)
 	}
 
-	response, err := validateWord(url, strings.Join(commitMessage, "%20"))
+	messageString := strings.Join(commitMessage, "%20")
+	response, err := validateWord(url, strings.ToLower(messageString))
 	if err != nil {
 		panic(err)
 	}
