@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/fatih/color"
@@ -99,6 +100,18 @@ func main() {
 			fmt.Print("		Suggestions: ")
 			color.Green("%v\n", mistake.Candidates)
 
+		}
+
+		//ignoring the mistakes
+		fmt.Println("To ignore click ENTER: ")
+		scanner := bufio.NewScanner(os.Stdin)
+		if scanner.Scan() {
+			if scanner.Text() == "" {
+				handleCommit(strings.Join(commitMessage, " "))
+			}
+		}
+		if scanner.Err() != nil {
+			fmt.Println("An error occurred:", scanner.Err())
 		}
 	}
 }
